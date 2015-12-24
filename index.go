@@ -1,14 +1,27 @@
 package main
 
-import (
-	"fmt"
-	"io/ioutil"
-	"os"
-)
+import "os"
 
 func main() {
-	x, _ := ioutil.ReadDir(os.Getenv("HOME"))
-	for _, file := range x {
-		fmt.Printf("%s [%v] %v\n", file.Name(), file.Size(), file.Mode())
+	dir, err := getDir()
+	if err != nil {
+		panic(err)
+	}
+
+	el := &Ellel{
+		Dir:       dir,
+		Formatter: &DefaultRowFormatter{},
+		Theme:     &DefaultTheme{},
+		Output:    &DefaultOutput{},
+	}
+
+	el.Render()
+}
+
+func getDir() (string, error) {
+	if len(os.Args) == 1 {
+		return os.Getwd()
+	} else {
+		return os.Args[1], nil
 	}
 }
