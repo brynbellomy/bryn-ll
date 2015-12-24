@@ -26,9 +26,6 @@ type (
 	IFileRow interface {
 		os.FileInfo
 		Field(f Field) IFileField
-		// NameField() IFileField
-		// ModeField() IFileField
-		// SizeField() IFileField
 	}
 
 	IOutput interface {

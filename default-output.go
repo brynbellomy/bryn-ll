@@ -10,14 +10,16 @@ import (
 type DefaultOutput struct{}
 
 func (o *DefaultOutput) WriteString(fileInfo []IFileRow, sink io.Writer) {
-	totalFileSize := uint64(0)
+	var (
+		totalFileSize = uint64(0)
 
-	fields := []Field{Mode, Name, Size}
-
-	cols := map[Field]*PaddedColumn{}
-	for _, f := range fields {
-		cols[f] = &PaddedColumn{}
-	}
+		fields = []Field{Size, Name, Mode}
+		cols   = map[Field]*PaddedColumn{
+			Mode: &PaddedColumn{Align: AlignLeft},
+			Size: &PaddedColumn{Align: AlignRight},
+			Name: &PaddedColumn{Align: AlignLeft},
+		}
+	)
 
 	for _, file := range fileInfo {
 		if !file.IsDir() {
@@ -42,6 +44,5 @@ func (o *DefaultOutput) WriteString(fileInfo []IFileRow, sink io.Writer) {
 		sink.Write([]byte("\n"))
 	}
 
-	// sink.Write([]byte(fmt.Sprintf("%s %s %s\n", file.ModeStr(), file.NameStr(), file.SizeStr())))
 	sink.Write([]byte(fmt.Sprintf("\ntotal %s\n", humanize.Bytes(totalFileSize))))
 }

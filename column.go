@@ -6,14 +6,14 @@ type (
 	PaddedColumn struct {
 		items    []IFileField
 		maxWidth int
-		Alignment
+		Align
 	}
 
-	Alignment int
+	Align int
 )
 
 const (
-	AlignLeft Alignment = iota
+	AlignLeft Align = iota
 	AlignRight
 )
 
@@ -37,16 +37,16 @@ func (c *PaddedColumn) MaxWidth() int {
 
 func (c *PaddedColumn) GetString(idx int) string {
 	strlen := c.items[idx].Width()
-	return c.Alignment.PadString(c.items[idx].String(), c.maxWidth-strlen)
+	return c.Align.PadString(c.items[idx].String(), c.maxWidth-strlen)
 }
 
-func (a Alignment) PadString(s string, n int) string {
+func (a Align) PadString(s string, n int) string {
 	switch a {
 	case AlignLeft:
 		return s + strings.Repeat(" ", n)
 	case AlignRight:
 		return strings.Repeat(" ", n) + s
 	default:
-		panic("Unknown case for Alignment")
+		panic("Unknown case for Align")
 	}
 }
