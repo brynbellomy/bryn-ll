@@ -16,7 +16,7 @@ type (
 	}
 
 	IRowFormatter interface {
-		Format(row os.FileInfo) IFileRow
+		Format(dir string, row os.FileInfo) IFileRow
 	}
 
 	ITheme interface {
@@ -25,7 +25,7 @@ type (
 
 	IFileRow interface {
 		os.FileInfo
-		Field(f Field) IFileField
+		Field(f Field) (IFileField, error)
 	}
 
 	IOutput interface {
@@ -37,6 +37,7 @@ type (
 
 const (
 	Name Field = iota
+	Link
 	Mode
 	Size
 )
@@ -51,7 +52,7 @@ func (el *Ellel) Render() error {
 
 	fs := make([]IFileRow, len(files))
 	for i, file := range files {
-		fs[i] = el.Formatter.Format(file)
+		fs[i] = el.Formatter.Format(el.Dir, file)
 		fs[i] = el.Theme.Format(fs[i])
 	}
 

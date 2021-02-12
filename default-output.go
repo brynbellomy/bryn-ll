@@ -5,6 +5,7 @@ import (
 	"io"
 
 	"github.com/dustin/go-humanize"
+	"go.uber.org/multierr"
 )
 
 type DefaultOutput struct{}
@@ -13,20 +14,24 @@ func (o *DefaultOutput) WriteString(fileInfo []IFileRow, sink io.Writer) {
 	var (
 		totalFileSize = uint64(0)
 
-		fields = []Field{Size, Name, Mode}
+		fields = []Field{Size, Name, Link, Mode}
 		cols   = map[Field]*PaddedColumn{
 			Mode: &PaddedColumn{Align: AlignLeft},
 			Size: &PaddedColumn{Align: AlignRight},
 			Name: &PaddedColumn{Align: AlignLeft},
+			Link: &PaddedColumn{Align: AlignLeft},
 		}
 	)
 
+	var merr error
 	for _, file := range fileInfo {
 		if !file.IsDir() {
 			totalFileSize += uint64(file.Size())
 		}
 		for _, f := range fields {
-			cols[f].AddRow(file.Field(f))
+			field, err := file.Field(f)
+			cols[f].AddRow(field)
+			merr = multierr.Append(merr, err)
 		}
 	}
 
@@ -45,4 +50,7 @@ func (o *DefaultOutput) WriteString(fileInfo []IFileRow, sink io.Writer) {
 	}
 
 	sink.Write([]byte(fmt.Sprintf("\ntotal %s\n", humanize.Bytes(totalFileSize))))
+	if merr != nil {
+		sink.Write([]byte(fmt.Sprintf("\nErrors encountered:\n%+v", merr)))
+	}
 }
